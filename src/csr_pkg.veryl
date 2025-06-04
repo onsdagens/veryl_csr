@@ -1,0 +1,15 @@
+// src/csr_pkg.veryl
+
+package CsrPkg {
+
+    enum CsrOp: logic<3> {
+        ECALL = 3'b000,
+        // EBREAK = 3'b000,
+        CSRRW = 3'b001,
+        CSRRS = 3'b010,
+        CSRRC = 3'b011,
+        CSRRWI = 3'b101,
+        CSRRSI = 3'b110,
+        CSRRCI = 3'b111,
+    }
+}

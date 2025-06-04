@@ -1,0 +1,60 @@
+// csr, individual register
+
+// ResetValue   Reset value (only in case of Write)
+// Read         A readable register
+// Write        A writable register
+
+import CsrPkg::*;
+
+module Csr #(
+    param Addr      : logic<12> = 0   , // 12 bit address for the CSR
+    param ResetValue: logic<32> = 0   , // 32 bit default value
+    param Read      : logic     = true,
+    param Write     : logic     = true,
+) (
+    i_clk  : input clock, // dedicated clock
+    i_reset: input reset, // dedicated reset
+
+    i_csr_ena : input  logic    ,
+    i_csr_addr: input  logic<12>,
+    i_32      : input  logic<32>,
+    i_5       : input  logic<5> ,
+    i_csr_op  : input  CsrOp    ,
+    o_data    : output logic<32>,
+) {
+    var data   : logic<32>;
+    var tmp    : logic<32>; // latched
+    var i_5_ext: logic<32>;
+
+    always_comb {
+        // write register
+        i_5_ext = {1'0 repeat 27, i_5};
+        if (i_csr_addr == Addr && i_csr_ena && Write) {
+            case i_csr_op {
+                CsrOp::ECALL: tmp = 0;
+                // EBREAK = 3'b000,
+                // write
+                CsrOp::CSRRW : tmp = i_32;
+                CsrOp::CSRRS : tmp = data | i_32;
+                CsrOp::CSRRC : tmp = data & ~i_32;
+                CsrOp::CSRRWI: tmp = i_5_ext;
+                CsrOp::CSRRSI: tmp = data | i_5_ext;
+                CsrOp::CSRRCI: tmp = data & ~i_5_ext;
+                default      : tmp = 0;
+            }
+        } else {
+            tmp = 0;
+        }
+    }
+
+    assign o_data = if Read ? data : 0;
+
+    always_ff {
+        if Write && i_reset {
+            data = ResetValue;
+        } else {
+            data = tmp;
+        }
+    }
+
+}
