@@ -1,0 +1,98 @@
+// src/csr_irq
+// modelling of interrupt vector
+
+// ResetValue   Reset value (only in case of Write)
+// Read         A readable register
+// Write        A writable register
+
+import CsrPkg::*;
+
+module CsrFields #(
+    param Addr      : logic<12> = 0   , // 12 bit address for the CSR
+    param ResetValue: logic<32> = 0   , // 32 bit default value
+    param Read      : logic     = true,
+    param Write     : logic     = true,
+) (
+    i_clk  : input clock, // dedicated clock
+    i_reset: input reset, // dedicated reset
+
+    i_csr_ena : input logic      ,
+    i_csr_addr: input CsrAddr    ,
+    i_32      : input logic  <32>,
+    i_5       : input logic  <5> ,
+    i_csr_op  : input CsrOp      ,
+
+    o_data: output logic<32>,
+    // o_a1  : output CsrAddr    ,
+    // o_a2  : output CsrAddr    ,
+) {
+    var reg_data: logic<32>;
+
+    var csr_w_data0: logic<32>;
+    var reg_w_ena0 : logic    ;
+
+    var csr_w_data1: logic<32>;
+    var reg_w_ena1 : logic    ;
+
+    var csr_w_data2: logic<32>;
+    var reg_w_ena2 : logic    ;
+
+    inst csr0: Csr #(
+        Addr  ,
+    ) (
+        i_csr_ena               ,
+        i_csr_addr              ,
+        i_32                    ,
+        i_5                     ,
+        i_csr_op                ,
+        i_reg_data : reg_data   ,
+        o_reg_w_ena: reg_w_ena0 ,
+        o_reg_data : csr_w_data0,
+    );
+
+    inst csr1: Csr #(
+        Addr     : (Addr as u32 + 1) as CsrAddr,
+        ImmOffset: 8                           ,
+        ImmWidth : 4                           , // 4 bit field
+    ) (
+        i_csr_ena               ,
+        i_csr_addr              ,
+        i_32                    ,
+        i_5                     ,
+        i_csr_op                ,
+        i_reg_data : reg_data   ,
+        o_reg_w_ena: reg_w_ena1 ,
+        o_reg_data : csr_w_data1,
+    );
+
+    inst csr2: Csr #(
+        Addr     : (Addr as u32 + 2) as CsrAddr,
+        ImmOffset: 12                          ,
+        ImmWidth : 2                           , // two bit field
+    ) (
+        i_csr_ena               ,
+        i_csr_addr              ,
+        i_32                    ,
+        i_5                     ,
+        i_csr_op                ,
+        i_reg_data : reg_data   ,
+        o_reg_w_ena: reg_w_ena2 ,
+        o_reg_data : csr_w_data2,
+    );
+
+    always_ff {
+        if Write {
+            if i_reset {
+                reg_data = ResetValue;
+            } else if reg_w_ena0 {
+                reg_data = csr_w_data0;
+            } else if reg_w_ena1 {
+                reg_data = csr_w_data1;
+            } else if reg_w_ena2 {
+                reg_data = csr_w_data2;
+            }
+        }
+    }
+
+    assign o_data = if Read ? reg_data : 0;
+}

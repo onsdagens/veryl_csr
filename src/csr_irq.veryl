@@ -1,0 +1,53 @@
+// src/csr_irq
+// modelling of interrupt vector
+
+// ResetValue   Reset value (only in case of Write)
+// Read         A readable register
+// Write        A writable register
+
+import CsrPkg::*;
+
+module CsrIrq #(
+    param Addr      : CsrAddr     = 0   , // 12 bit address for the CSR
+    param ResetValue: logic  <32> = 0   , // 32 bit default value
+    param Read      : logic       = true,
+    param Write     : logic       = true,
+) (
+    i_clk  : input clock, // dedicated clock
+    i_reset: input reset, // dedicated reset
+
+    i_csr_ena : input logic      ,
+    i_csr_addr: input CsrAddr    ,
+    i_32      : input logic  <32>,
+    i_5       : input CsrImm     ,
+    i_csr_op  : input CsrOp      ,
+
+    o_data: output logic<32>,
+) {
+    var reg_data  : logic<32>;
+    var csr_w_data: logic<32>;
+    var reg_w_ena : logic    ;
+
+    inst csr: Csr #(
+        Addr  ,
+    ) (
+        i_csr_ena              ,
+        i_csr_addr             ,
+        i_32                   ,
+        i_5                    ,
+        i_csr_op               ,
+        i_reg_data : reg_data  ,
+        o_reg_w_ena: reg_w_ena ,
+        o_reg_data : csr_w_data,
+    );
+
+    always_ff {
+        if Write && i_reset {
+            reg_data = ResetValue;
+        } else if reg_w_ena {
+            reg_data = csr_w_data;
+        }
+    }
+
+    assign o_data = if Read ? reg_data : 0;
+}

@@ -1,6 +1,6 @@
 // src/regfile_test.veryl
 
-#[test(csr)]
+#[test(csr_irq)]
 embed (inline) sv{{{
 
     module test;
@@ -15,14 +15,14 @@ embed (inline) sv{{{
         CsrOp i_csr_op;
         logic [31:0] o_data;
         
-        veryl_csr_Csr #(
+        veryl_csr_CsrIrq #(
             .Addr('h101),
             .ResetValue('hdead_beef)
         ) csr 
         (
             i_clk,
-            i_reset, 
-
+            i_reset,
+            
             i_csr_ena,
             i_csr_addr,
             i_32,
