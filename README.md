@@ -4,11 +4,11 @@ Highly configure CSR abstraction, featuring:
 
 - Enumerated register fields.
 - Immediate field overlays with shared storage, ensuring field isolation.
-- Self address selection for FGPA bus-less I/O.
+- Self address selection for FPGA bus-less I/O.
 
 ---
 
-## General architcure
+## General architecture
 
 ![CSR][csr]
 
@@ -34,7 +34,7 @@ package CsrPkg {
 }
 ```
 
-For the implemantion, `src/csr.veryl` provides a general abstraction for CSRs:
+For the implementation, `src/csr.veryl` provides a general abstraction for CSRs:
 
 ```sv
 module Csr #(
@@ -68,11 +68,17 @@ The implementation ensures field isolation, ensuring that immediate operations *
 
 ![CSR][csr_fields]
 
-The `src/csr_fields.veryl` provides an example of implementing a periheral at address `Addr` 0x101 (a 5 bit field, at offset 0), `Addr + 1` (a 4 bit field at offset 8), and `Addr + 2` (a 2 bit field at offset 12).
+The `src/csr_fields.veryl` provides an example of implementing a peripheral at address `Addr` 0x101 (a 5 bit field, at offset 0), `Addr + 1` (a 4 bit field at offset 8), and `Addr + 2` (a 2 bit field at offset 12).
 
 A single 32 bit backing storage is shared among the field views, allowing a mix of register and field based operations.
 
-## Limitaitions
+## Extendability
+
+As seen en the example above, the backing data is *owned* by the wrapping component. This allows the wrapper to provide additional interfaces, e.g., allowing concurrent updates to the underlying register(s). This is useful to implement peripherals, e.g., a flag bit signal can be raised by the hardware and consecutively cleared by the software as a side effect or reading or explicit clear.
+
+Notice, the wrapper component is responsible for resolving race conditions between hardware and software accesses.
+
+## Limitations
 
 The current implementation does not implement read only operations.
 
