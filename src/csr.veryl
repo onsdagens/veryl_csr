@@ -1,44 +1,80 @@
-// csr, individual register
+// src/csr.veryl
 
 import CsrPkg::*;
 
 module Csr #(
-    param Addr     : CsrAddr = 0, // 12 bit address for the CSR
-    param ImmOffset: u32     = 0, // offset for immediate field
-    param ImmWidth : u32     = 5, // field width
+    param Addr      : CsrAddr = 0    , // 12 bit address for the CSR (view)
+    param Offset    : u32     = 0    , // offset for field
+    param Width     : u32     = 32   , // write field width
+    param ImmWidth  : u32     = Width,
+    param WriteShift: logic   = 0    , // when 1, i_rs1_data is shifted to field offset
+    param ReadShift : logic   = 1    , // when 1, read field shifted to offset 0
 ) (
     i_csr_ena : input logic      ,
     i_csr_addr: input CsrAddr    ,
-    i_32      : input logic  <32>,
-    i_5       : input CsrImm     ,
+    i_rs1_data: input logic  <32>,
+    i_rs1     : input Reg        ,
+    i_rd      : input Reg        ,
     i_csr_op  : input CsrOp      ,
 
-    i_reg_data : input  logic<32>,
-    o_reg_w_ena: output logic    ,
-    o_reg_data : output logic<32>,
+    i_reg_data  : input  logic<32>,
+    o_reg_w_ena : output logic    ,
+    o_reg_w_data: output logic<32>,
+    o_reg_r_ena : output logic    ,
+    o_reg_r_data: output logic<32>,
 ) {
-    var i_5_ext : logic<32>;
-    var i_5_mask: logic<32>;
+    var rs1_ext     : logic<32>;
+    var rs1_data_ext: logic<32>;
+    var mask        : logic<32>;
 
     always_comb {
         // o_addr  = Addr;
-        i_5_ext  = (i_5 as u32 & {1'0 repeat 32 - ImmWidth, 1'1 repeat ImmWidth}) << ImmOffset;
-        i_5_mask = ~({1'0 repeat 32 - ImmWidth, 1'1 repeat ImmWidth} << ImmOffset);
+        rs1_ext      = (i_rs1 as u32 & {1'1 repeat ImmWidth}) as u32 << Offset;
+        rs1_data_ext = (i_rs1_data & {1'1 repeat Width}) as u32 << (if WriteShift ? Offset : 0);
+        mask         = ~({1'1 repeat Width} as u32 << Offset);
+
         if (i_csr_addr == Addr && i_csr_ena) {
-            o_reg_w_ena = 1;
+            o_reg_r_ena  = i_rd != 0; // read only in case the destination register is not x0
+            o_reg_r_data = if o_reg_r_ena ? (i_reg_data & ({1'1 repeat Width} as u32 << Offset)) >> (if ReadShift ? Offset : 0) : 0;
             case i_csr_op {
-                CsrOp::ECALL : o_reg_data = 0;
-                CsrOp::CSRRW : o_reg_data = i_32;
-                CsrOp::CSRRS : o_reg_data = i_reg_data | i_32;
-                CsrOp::CSRRC : o_reg_data = i_reg_data & ~i_32;
-                CsrOp::CSRRWI: o_reg_data = (i_reg_data & i_5_mask) | i_5_ext;
-                CsrOp::CSRRSI: o_reg_data = i_reg_data | i_5_ext;
-                CsrOp::CSRRCI: o_reg_data = i_reg_data & ~i_5_ext;
-                default      : o_reg_data = 0;
+                CsrOp::ECALL: {
+                    o_reg_w_ena  = 0;
+                    o_reg_w_data = 0;
+                }
+                CsrOp::CSRRW: {
+                    o_reg_w_ena  = 1;
+                    o_reg_w_data = (i_rs1_data & mask) | rs1_data_ext;
+                }
+                CsrOp::CSRRS: {
+                    o_reg_w_ena  = 1;
+                    o_reg_w_data = i_reg_data | rs1_data_ext;
+                }
+                CsrOp::CSRRC: {
+                    o_reg_w_ena  = 1;
+                    o_reg_w_data = i_reg_data & rs1_data_ext;
+                }
+                CsrOp::CSRRWI: {
+                    o_reg_w_ena  = i_rs1 != 0;
+                    o_reg_w_data = (i_reg_data & mask) | rs1_ext;
+                }
+                CsrOp::CSRRSI: {
+                    o_reg_w_ena  = i_rs1 != 0;
+                    o_reg_w_data = i_reg_data | rs1_ext;
+                }
+                CsrOp::CSRRCI: {
+                    o_reg_w_ena  = i_rs1 != 0;
+                    o_reg_w_data = i_reg_data & ~rs1_ext;
+                }
+                default: {
+                    o_reg_w_ena  = 0;
+                    o_reg_w_data = 0;
+                }
             }
         } else {
-            o_reg_data  = 0;
-            o_reg_w_ena = 0;
+            o_reg_w_ena  = 0;
+            o_reg_w_data = 0;
+            o_reg_r_ena  = 0;
+            o_reg_r_data = 0;
         }
     }
 }

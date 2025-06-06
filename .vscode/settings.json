@@ -8,6 +8,7 @@
         "CSRRWI",
         "EBREAK",
         "ECALL",
+        "MMIO",
         "veryl"
     ]
 }

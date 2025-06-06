@@ -13,5 +13,5 @@ package CsrPkg {
     }
 
     type CsrAddr = logic<12>;
-    type CsrImm  = logic<5> ;
+    type Reg     = logic<5> ;
 }

@@ -18,81 +18,127 @@ module CsrFields #(
 
     i_csr_ena : input logic      ,
     i_csr_addr: input CsrAddr    ,
-    i_32      : input logic  <32>,
-    i_5       : input logic  <5> ,
+    i_rs1_data: input logic  <32>,
+    i_rs1     : input Reg        ,
+    i_rd      : input Reg        ,
     i_csr_op  : input CsrOp      ,
 
     o_data: output logic<32>,
-    // o_a1  : output CsrAddr    ,
-    // o_a2  : output CsrAddr    ,
 ) {
     var reg_data: logic<32>;
 
-    var csr_w_data0: logic<32>;
+    var reg_w_ena : logic    ;
+    var reg_w_data: logic<32>;
+    var reg_r_ena : logic    ;
+    var reg_r_data: logic<32>;
+
     var reg_w_ena0 : logic    ;
+    var reg_w_data0: logic<32>;
+    var reg_r_ena0 : logic    ;
+    var reg_r_data0: logic<32>;
 
-    var csr_w_data1: logic<32>;
     var reg_w_ena1 : logic    ;
+    var reg_w_data1: logic<32>;
+    var reg_r_ena1 : logic    ;
+    var reg_r_data1: logic<32>;
 
-    var csr_w_data2: logic<32>;
     var reg_w_ena2 : logic    ;
+    var reg_w_data2: logic<32>;
+    var reg_r_ena2 : logic    ;
+    var reg_r_data2: logic<32>;
 
-    inst csr0: Csr #(
-        Addr  ,
+    // read access to whole register
+    inst csr: Csr #(
+        Addr       ,
+        ImmWidth: 0, // 0 bit field, no field access
     ) (
         i_csr_ena               ,
         i_csr_addr              ,
-        i_32                    ,
-        i_5                     ,
+        i_rs1_data              ,
+        i_rs1                   ,
+        i_rd                    ,
         i_csr_op                ,
-        i_reg_data : reg_data   ,
-        o_reg_w_ena: reg_w_ena0 ,
-        o_reg_data : csr_w_data0,
+        i_reg_data  : reg_data  ,
+        o_reg_w_ena : reg_w_ena ,
+        o_reg_w_data: reg_w_data,
+        o_reg_r_ena : reg_r_ena ,
+        o_reg_r_data: reg_r_data,
     );
 
-    inst csr1: Csr #(
-        Addr     : (Addr as u32 + 1) as CsrAddr,
-        ImmOffset: 8                           ,
-        ImmWidth : 4                           , // 4 bit field
-    ) (
-        i_csr_ena               ,
-        i_csr_addr              ,
-        i_32                    ,
-        i_5                     ,
-        i_csr_op                ,
-        i_reg_data : reg_data   ,
-        o_reg_w_ena: reg_w_ena1 ,
-        o_reg_data : csr_w_data1,
-    );
+    // // default, 5 bit field at offset 0
+    // inst csr0: Csr #(
+    //     Addr  : (Addr as u32 + 1) as CsrAddr,
+    //     Offset: 0                           , // not needed
+    //     Width : 5                           ,
+    // ) (
+    //     i_csr_ena                ,
+    //     i_csr_addr               ,
+    //     i_rs1_data               ,
+    //     i_rs1                    ,
+    //     i_rd                     ,
+    //     i_csr_op                 ,
+    //     i_reg_data  : reg_data   ,
+    //     o_reg_w_ena : reg_w_ena0 ,
+    //     o_reg_w_data: reg_w_data0,
+    //     o_reg_r_ena : reg_r_ena0 ,
+    //     o_reg_r_data: reg_r_data0,
+    // );
 
-    inst csr2: Csr #(
-        Addr     : (Addr as u32 + 2) as CsrAddr,
-        ImmOffset: 12                          ,
-        ImmWidth : 2                           , // two bit field
-    ) (
-        i_csr_ena               ,
-        i_csr_addr              ,
-        i_32                    ,
-        i_5                     ,
-        i_csr_op                ,
-        i_reg_data : reg_data   ,
-        o_reg_w_ena: reg_w_ena2 ,
-        o_reg_data : csr_w_data2,
-    );
+    // // 4 bit field at offset 8
+    // inst csr1: Csr #(
+    //     Addr      : (Addr as u32 + 2) as CsrAddr,
+    //     Offset    : 8                           ,
+    //     Width     : 4                           , // 4 bit field
+    //     ReadShift : 1                           ,
+    //     WriteShift: 1                           ,
+    // ) (
+    //     i_csr_ena                ,
+    //     i_csr_addr               ,
+    //     i_rs1_data               ,
+    //     i_rs1                    ,
+    //     i_rd                     ,
+    //     i_csr_op                 ,
+    //     i_reg_data  : reg_data   ,
+    //     o_reg_w_ena : reg_w_ena1 ,
+    //     o_reg_w_data: reg_w_data1,
+    //     o_reg_r_ena : reg_r_ena1 ,
+    //     o_reg_r_data: reg_r_data1,
+    // );
+
+    // // 2 bit field at offset 12
+    // inst csr2: Csr #(
+    //     Addr  : (Addr as u32 + 3) as CsrAddr,
+    //     Offset: 12                          ,
+    //     Width : 2                           , // two bit field
+    // ) (
+    //     i_csr_ena                ,
+    //     i_csr_addr               ,
+    //     i_rs1_data               ,
+    //     i_rs1                    ,
+    //     i_rd                     ,
+    //     i_csr_op                 ,
+    //     i_reg_data  : reg_data   ,
+    //     o_reg_w_ena : reg_w_ena2 ,
+    //     o_reg_w_data: reg_w_data2,
+    //     o_reg_r_ena : reg_r_ena2 ,
+    //     o_reg_r_data: reg_r_data2,
+    // );
 
     always_ff {
         if Write {
             if i_reset {
                 reg_data = ResetValue;
+            } else if reg_w_ena {
+                reg_data = reg_w_data;
             } else if reg_w_ena0 {
-                reg_data = csr_w_data0;
+                reg_data = reg_w_data0;
             } else if reg_w_ena1 {
-                reg_data = csr_w_data1;
+                reg_data = reg_w_data1;
             } else if reg_w_ena2 {
-                reg_data = csr_w_data2;
+                reg_data = reg_w_data2;
             }
         }
     }
 
-    assign o_data = if Read ? reg_data : 0;
+    assign o_data = if Read ? reg_r_data | reg_r_data0 | reg_r_data1 | reg_r_data2 : 0;
 }
