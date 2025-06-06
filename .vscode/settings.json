@@ -9,6 +9,7 @@
         "EBREAK",
         "ECALL",
         "MMIO",
+        "hdead",
         "veryl"
     ]
 }

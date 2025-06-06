@@ -52,81 +52,229 @@ embed (inline) sv{{{
             i_rd  = 1; // rd destination != x0
 
             #10; i_clk=1; #10; i_clk=0;
+            assert (o_data == 'hdead_beef) else $error("reset value");
             // test write
-            i_rs1_data = 'hffff_ffff;
+            i_rs1_data = 'hdead_0000;
             i_csr_op = CsrOp_CSRRW;
-            i_rd = 1;
 
             #10; i_clk=1; #10; i_clk=0;
+            assert (o_data == 'hdead_0000) else $error("CSRRW");
+
+            i_csr_op = CsrOp_CSRRS;
+            i_rs1_data = 'h_0000_beef;
+
             #10; i_clk=1; #10; i_clk=0;
-            // assert (o_data == 'hdead_0000) else $error("CSRRW");
+            assert (o_data == 'hdead_beef) else $error("CSRRS");
 
-            // i_csr_op = CsrOp_CSRRS;
-            // i_32 = 'h_0000_beef;
+            i_csr_op = CsrOp_CSRRC;
+            i_rs1_data = 'h_dead_0000;
 
-            // #10; i_clk=1; #10; i_clk=0;
-            // assert (o_data == 'hdead_beef) else $error("CSRRS");
+            #10; i_clk=1; #10; i_clk=0;
+            assert (o_data == 'h0000_beef) else $error("CSRRC");
 
-            // i_csr_op = CsrOp_CSRRC;
-            // i_32 = 'h_dead_0000;
+            i_csr_op = CsrOp_CSRRC;
+            i_rs1_data = 'h_0000_beef;
 
-            // #10; i_clk=1; #10; i_clk=0;
-            // assert (o_data == 'h0000_beef) else $error("CSRRC");
+            #10; i_clk=1; #10; i_clk=0;
+            assert (o_data == 'h0000_0000) else $error("CSRRC");
 
-            // i_csr_op = CsrOp_CSRRC;
-            // i_32 = 'h_0000_beef;
+            // test immediate 5 bits, 100
+            // this register has no field, thus no write
+            i_csr_op = CsrOp_CSRRWI;
+            i_rs1 = 'h_1f;
 
-            // #10; i_clk=1; #10; i_clk=0;
-            // assert (o_data == 'h0000_0000) else $error("CSRRC");
+            #10; i_clk=1; #10; i_clk=0;
+            assert (o_data == 'h0000_0000) else $error("CSRRWI 100");
 
-            // // test immediate 5 bits, 101
-            // i_csr_op = CsrOp_CSRRWI;
-            // i_5 = 'h_1f;
+            // field 4..0 
+            i_csr_addr = 'h101;
+            #10; i_clk=1; #10; i_clk=0;
+            assert (o_data == 'h0000_001f) else $error("CSRRWI 101");
 
-            // #10; i_clk=1; #10; i_clk=0;
-            // assert (o_data == 'h0000_001f) else $error("CSRRWI 101");
+            i_csr_op = CsrOp_CSRRCI;
+            i_rs1 = 'h_0f;
 
-            // i_csr_op = CsrOp_CSRRCI;
-            // i_5 = 'h_0f;
+            #10; i_clk=1; #10; i_clk=0;
+            assert (o_data == 'h0000_0010) else $error("CSRRCI 101");
 
-            // #10; i_clk=1; #10; i_clk=0;
-            // assert (o_data == 'h0000_0010) else $error("CSRRCI 101");
+            i_csr_op = CsrOp_CSRRSI;
+            i_rs1 = 'h_0d;
+            #10; i_clk=1; #10; i_clk=0;
+            assert (o_data == 'h0000_001d) else $error("CSRRSI 101");
 
-            // i_csr_op = CsrOp_CSRRSI;
-            // i_5 = 'h_0d;
-            // #10; i_clk=1; #10; i_clk=0;
+            // test immediate 102
+            i_csr_addr = 'h102; 
+            i_csr_op = CsrOp_CSRRWI;
+            i_rs1 = 'h_1f;
+            #10; i_clk=1; #10; i_clk=0;
+            assert (o_data == 'h0000_0f00) else $error("CSRRWI 102");
 
-            // assert (o_data == 'h0000_001d) else $error("CSRRSI 101");
+            // read whole register
+            i_csr_addr = 'h100; 
+            i_csr_op = CsrOp_CSRRWI;
+            #10; i_clk=1; #10; i_clk=0;
+            assert (o_data == 'h0000_0f1d) else $error("CSRRWI 100");
 
-            // // test immediate 102
-            // i_csr_addr = 'h102; 
-            // i_csr_op = CsrOp_CSRRWI;
-            // i_5 = 'h_1f;
-            // #10; i_clk=1; #10; i_clk=0;
-            // assert (o_data == 'h0000_0f1d) else $error("CSRRWI 102");
+            // test write 102
+            i_csr_addr = 'h102; 
+            i_csr_op = CsrOp_CSRRW;
+            i_rs1_data = 'h_0000_0300;
+            #10; i_clk=1; #10; i_clk=0;
+            assert (o_data == 'h0000_0300) else $error("CSRRW 102");
 
-            // // test immediate 103
-            // i_csr_addr = 'h103; 
-            // i_csr_op = CsrOp_CSRRWI;
-            // i_5 = 'h_1f;
-            // #10; i_clk=1; #10; i_clk=0;
-            // assert (o_data == 'h0000_3f1d) else $error("CSRRWI 103");
+            i_csr_addr = 'h100; 
+            i_csr_op = CsrOp_CSRRWI;
+            #10; i_clk=1; #10; i_clk=0;
+            assert (o_data == 'h0000_031d) else $error("CSRRWI 100");
 
-            // // test clear 102
-            // i_csr_addr = 'h102; 
-            // i_csr_op = CsrOp_CSRRCI;
-            // i_5 = 'h_13;
-            // #10; i_clk=1; #10; i_clk=0;
-            // assert (o_data == 'h0000_3c1d) else $error("CSRRCI 102");
+            // test clear 102
+            i_csr_addr = 'h102; 
+            i_csr_op = CsrOp_CSRRC;
+            i_rs1_data = 'h_ffff_f2ff;
+            #10; i_clk=1; #10; i_clk=0;
+            assert (o_data == 'h0000_0100) else $error("CSRRC 102");
 
-            // // test set 102
-            // i_csr_addr = 'h102; 
-            // i_csr_op = CsrOp_CSRRSI;
-            // i_5 = 'h_11;
-            // #10; i_clk=1; #10; i_clk=0;
-            // assert (o_data == 'h0000_3d1d) else $error("CSRRSI 102");
+            // read whole register
+            i_csr_addr = 'h100; 
+            i_csr_op = CsrOp_CSRRWI;
+            #10; i_clk=1; #10; i_clk=0;
+            assert (o_data == 'h0000_011d) else $error("CSRRWI 100");
 
-            // #10; i_clk=1; #10; i_clk=0;
+            // test set 102
+            i_csr_addr = 'h102; 
+            i_csr_op = CsrOp_CSRRS;
+            i_rs1_data = 'h_ffff_f8ff;
+            #10; i_clk=1; #10; i_clk=0;
+            assert (o_data == 'h0000_0900) else $error("CSRRC 102");
+
+            // read whole register
+            i_csr_addr = 'h100; 
+            i_csr_op = CsrOp_CSRRWI;
+            #10; i_clk=1; #10; i_clk=0;
+            assert (o_data == 'h0000_091d) else $error("CSRRWI 100");
+
+            // test immediate 103
+            i_csr_addr = 'h103; 
+            i_csr_op = CsrOp_CSRRWI;
+            i_rs1 = 'h_1f;
+            #10; i_clk=1; #10; i_clk=0;
+            assert (o_data == 'h0000_0003) else $error("CSRRWI 103");
+
+            // read whole register
+            i_csr_addr = 'h100; 
+            i_csr_op = CsrOp_CSRRWI;
+            #10; i_clk=1; #10; i_clk=0;
+            assert (o_data == 'h0000_391d) else $error("CSRRWI 100");
+
+            // test clear imm 103
+            i_csr_addr = 'h103; 
+            i_csr_op = CsrOp_CSRRCI;
+            i_rs1 = 'h_1e;
+            #10; i_clk=1; #10; i_clk=0;
+            assert (o_data == 'h0000_0001) else $error("CSRRCI 103");
+
+            // read whole register
+            i_csr_addr = 'h100; 
+            i_csr_op = CsrOp_CSRRWI;
+            #10; i_clk=1; #10; i_clk=0;
+            assert (o_data == 'h0000_191d) else $error("CSRRWI 100");
+
+            // test write 103
+            i_csr_addr = 'h103; 
+            i_csr_op = CsrOp_CSRRW;
+            i_rs1_data = 'h_ffff_fffe;
+            #10; i_clk=1; #10; i_clk=0;
+            assert (o_data == 'h0000_0002) else $error("CSRRW 103");
+
+            // read whole register
+            i_csr_addr = 'h100; 
+            i_csr_op = CsrOp_CSRRWI;
+            #10; i_clk=1; #10; i_clk=0;
+            assert (o_data == 'h0000_291d) else $error("CSRRWI 100");
+
+            // test set 103
+            i_csr_addr = 'h103; 
+            i_csr_op = CsrOp_CSRRS;
+            i_rs1_data = 'h_ffff_fffd;
+            #10; i_clk=1; #10; i_clk=0;
+            assert (o_data == 'h0000_0003) else $error("CSRRS 103");
+
+            // test clear 103
+            i_csr_addr = 'h103; 
+            i_csr_op = CsrOp_CSRRC;
+            i_rs1_data = 'h_ffff_fffe;
+            #10; i_clk=1; #10; i_clk=0;
+            assert (o_data == 'h0000_0001) else $error("CSRRC 103");
+
+            // test clear immediate 103
+            i_csr_addr = 'h103; 
+            i_csr_op = CsrOp_CSRRCI;
+            i_rs1 = 'h_1f;
+            #10; i_clk=1; #10; i_clk=0;
+            assert (o_data == 'h0000_0000) else $error("CSRRCI 103");
+
+            // read whole register
+            i_csr_addr = 'h100; 
+            i_csr_op = CsrOp_CSRRWI;
+            #10; i_clk=1; #10; i_clk=0;
+            assert (o_data == 'h0000_091d) else $error("CSRRWI 100");
+
+            // test set immediate 103
+            i_csr_addr = 'h103; 
+            i_csr_op = CsrOp_CSRRSI;
+            i_rs1 = 'h_1f;
+            #10; i_clk=1; #10; i_clk=0;
+            assert (o_data == 'h0000_0003) else $error("CSRRCI 103");
+
+            // read whole register
+            i_csr_addr = 'h100; 
+            i_csr_op = CsrOp_CSRRWI;
+            #10; i_clk=1; #10; i_clk=0;
+            assert (o_data == 'h0000_391d) else $error("CSRRWI 100");
+
+            // test set immediate 102
+            i_csr_addr = 'h102; 
+            i_csr_op = CsrOp_CSRRSI;
+            i_rs1 = 'h_1f;
+            #10; i_clk=1; #10; i_clk=0;
+            assert (o_data == 'h0000_0f00) else $error("CSRRSI 102");
+
+            // test clear immediate 102
+            i_csr_addr = 'h102; 
+            i_csr_op = CsrOp_CSRRCI;
+            i_rs1 = 'h_1f;
+            #10; i_clk=1; #10; i_clk=0;
+            assert (o_data == 'h0000_0000) else $error("CSRRCI 102");
+
+            // test write immediate 102
+            i_csr_addr = 'h102; 
+            i_csr_op = CsrOp_CSRRWI;
+            i_rs1 = 'h_17;
+            #10; i_clk=1; #10; i_clk=0;
+            assert (o_data == 'h0000_0700) else $error("CSRRWI 102");
+
+            // test write immediate 102
+            i_csr_addr = 'h102; 
+            i_csr_op = CsrOp_CSRRW;
+            i_rs1_data = 'h_ffff_f5ff;
+            #10; i_clk=1; #10; i_clk=0;
+            assert (o_data == 'h0000_0500) else $error("CSRRW 102");
+
+            // test set immediate 102
+            i_csr_addr = 'h102; 
+            i_csr_op = CsrOp_CSRRS;
+            i_rs1_data = 'h_ffff_f2ff;
+            #10; i_clk=1; #10; i_clk=0;
+            assert (o_data == 'h0000_0700) else $error("CSRRW 102");
+
+            // test clear immediate 102
+            i_csr_addr = 'h102; 
+            i_csr_op = CsrOp_CSRRC;
+            i_rs1_data = 'h_ffff_f2ff;
+            #10; i_clk=1; #10; i_clk=0;
+            assert (o_data == 'h0000_0500) else $error("CSRRW 102");
+
+
 
             $finish;
          end

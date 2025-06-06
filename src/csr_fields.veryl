@@ -1,9 +1,4 @@
-// src/csr_irq
-// modelling of interrupt vector
-
-// ResetValue   Reset value (only in case of Write)
-// Read         A readable register
-// Write        A writable register
+// src/csr_fields.veryl
 
 import CsrPkg::*;
 
@@ -65,64 +60,66 @@ module CsrFields #(
         o_reg_r_data: reg_r_data,
     );
 
-    // // default, 5 bit field at offset 0
-    // inst csr0: Csr #(
-    //     Addr  : (Addr as u32 + 1) as CsrAddr,
-    //     Offset: 0                           , // not needed
-    //     Width : 5                           ,
-    // ) (
-    //     i_csr_ena                ,
-    //     i_csr_addr               ,
-    //     i_rs1_data               ,
-    //     i_rs1                    ,
-    //     i_rd                     ,
-    //     i_csr_op                 ,
-    //     i_reg_data  : reg_data   ,
-    //     o_reg_w_ena : reg_w_ena0 ,
-    //     o_reg_w_data: reg_w_data0,
-    //     o_reg_r_ena : reg_r_ena0 ,
-    //     o_reg_r_data: reg_r_data0,
-    // );
+    // default, 5 bit field at offset 0
+    inst csr0: Csr #(
+        Addr  : (Addr as u32 + 1) as CsrAddr,
+        Offset: 0                           , // not needed
+        Width : 5                           ,
+    ) (
+        i_csr_ena                ,
+        i_csr_addr               ,
+        i_rs1_data               ,
+        i_rs1                    ,
+        i_rd                     ,
+        i_csr_op                 ,
+        i_reg_data  : reg_data   ,
+        o_reg_w_ena : reg_w_ena0 ,
+        o_reg_w_data: reg_w_data0,
+        o_reg_r_ena : reg_r_ena0 ,
+        o_reg_r_data: reg_r_data0,
+    );
 
-    // // 4 bit field at offset 8
-    // inst csr1: Csr #(
-    //     Addr      : (Addr as u32 + 2) as CsrAddr,
-    //     Offset    : 8                           ,
-    //     Width     : 4                           , // 4 bit field
-    //     ReadShift : 1                           ,
-    //     WriteShift: 1                           ,
-    // ) (
-    //     i_csr_ena                ,
-    //     i_csr_addr               ,
-    //     i_rs1_data               ,
-    //     i_rs1                    ,
-    //     i_rd                     ,
-    //     i_csr_op                 ,
-    //     i_reg_data  : reg_data   ,
-    //     o_reg_w_ena : reg_w_ena1 ,
-    //     o_reg_w_data: reg_w_data1,
-    //     o_reg_r_ena : reg_r_ena1 ,
-    //     o_reg_r_data: reg_r_data1,
-    // );
+    // 4 bit field at offset 8
+    inst csr1: Csr #(
+        Addr      : (Addr as u32 + 2) as CsrAddr,
+        Offset    : 8                           ,
+        Width     : 4                           , // 4 bit field
+        ReadShift : 0                           ,
+        WriteShift: 0                           ,
+    ) (
+        i_csr_ena                ,
+        i_csr_addr               ,
+        i_rs1_data               ,
+        i_rs1                    ,
+        i_rd                     ,
+        i_csr_op                 ,
+        i_reg_data  : reg_data   ,
+        o_reg_w_ena : reg_w_ena1 ,
+        o_reg_w_data: reg_w_data1,
+        o_reg_r_ena : reg_r_ena1 ,
+        o_reg_r_data: reg_r_data1,
+    );
 
-    // // 2 bit field at offset 12
-    // inst csr2: Csr #(
-    //     Addr  : (Addr as u32 + 3) as CsrAddr,
-    //     Offset: 12                          ,
-    //     Width : 2                           , // two bit field
-    // ) (
-    //     i_csr_ena                ,
-    //     i_csr_addr               ,
-    //     i_rs1_data               ,
-    //     i_rs1                    ,
-    //     i_rd                     ,
-    //     i_csr_op                 ,
-    //     i_reg_data  : reg_data   ,
-    //     o_reg_w_ena : reg_w_ena2 ,
-    //     o_reg_w_data: reg_w_data2,
-    //     o_reg_r_ena : reg_r_ena2 ,
-    //     o_reg_r_data: reg_r_data2,
-    // );
+    // 2 bit field at offset 12
+    inst csr2: Csr #(
+        Addr      : (Addr as u32 + 3) as CsrAddr,
+        Offset    : 12                          ,
+        Width     : 2                           , // two bit field
+        ReadShift : 1                           ,
+        WriteShift: 1                           ,
+    ) (
+        i_csr_ena                ,
+        i_csr_addr               ,
+        i_rs1_data               ,
+        i_rs1                    ,
+        i_rd                     ,
+        i_csr_op                 ,
+        i_reg_data  : reg_data   ,
+        o_reg_w_ena : reg_w_ena2 ,
+        o_reg_w_data: reg_w_data2,
+        o_reg_r_ena : reg_r_ena2 ,
+        o_reg_r_data: reg_r_data2,
+    );
 
     always_ff {
         if Write {

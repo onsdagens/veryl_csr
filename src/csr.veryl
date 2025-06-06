@@ -25,13 +25,14 @@ module Csr #(
 ) {
     var rs1_ext     : logic<32>;
     var rs1_data_ext: logic<32>;
-    var mask        : logic<32>;
+    var imm_mask    : logic<32>;
+    var reg_mask    : logic<32>;
 
     always_comb {
-        // o_addr  = Addr;
-        rs1_ext      = (i_rs1 as u32 & {1'1 repeat ImmWidth}) as u32 << Offset;
-        rs1_data_ext = (i_rs1_data & {1'1 repeat Width}) as u32 << (if WriteShift ? Offset : 0);
-        mask         = ~({1'1 repeat Width} as u32 << Offset);
+        rs1_ext      = (i_rs1 as u32 & ({1'0, 1'1 repeat ImmWidth} as u32)) << Offset;
+        rs1_data_ext = (i_rs1_data << (if WriteShift ? Offset : 0)) & (({1'1 repeat Width} as u32) << Offset);
+        imm_mask     = ~({1'0, 1'1 repeat ImmWidth} as u32 << Offset);
+        reg_mask     = ~({1'1 repeat Width} as u32 << Offset);
 
         if (i_csr_addr == Addr && i_csr_ena) {
             o_reg_r_ena  = i_rd != 0; // read only in case the destination register is not x0
@@ -43,7 +44,7 @@ module Csr #(
                 }
                 CsrOp::CSRRW: {
                     o_reg_w_ena  = 1;
-                    o_reg_w_data = (i_rs1_data & mask) | rs1_data_ext;
+                    o_reg_w_data = (i_reg_data & reg_mask) | rs1_data_ext;
                 }
                 CsrOp::CSRRS: {
                     o_reg_w_ena  = 1;
@@ -51,11 +52,11 @@ module Csr #(
                 }
                 CsrOp::CSRRC: {
                     o_reg_w_ena  = 1;
-                    o_reg_w_data = i_reg_data & rs1_data_ext;
+                    o_reg_w_data = i_reg_data & ~rs1_data_ext;
                 }
                 CsrOp::CSRRWI: {
                     o_reg_w_ena  = i_rs1 != 0;
-                    o_reg_w_data = (i_reg_data & mask) | rs1_ext;
+                    o_reg_w_data = (i_reg_data & imm_mask) | rs1_ext;
                 }
                 CsrOp::CSRRSI: {
                     o_reg_w_ena  = i_rs1 != 0;

@@ -1,0 +1,310 @@
+(
+    show_hierarchy: None,
+    show_menu: None,
+    show_ticks: None,
+    show_toolbar: None,
+    show_tooltip: None,
+    show_scope_tooltip: None,
+    show_default_timeline: None,
+    show_overview: None,
+    show_statusbar: None,
+    align_names_right: None,
+    show_variable_indices: None,
+    show_variable_direction: None,
+    show_empty_scopes: None,
+    show_parameters_in_scopes: None,
+    highlight_focused: None,
+    waves: Some((
+        source: File("src/csr_fields.vcd"),
+        format: Vcd,
+        active_scope: Some(WaveScope((
+            strs: [
+                "test",
+                "csr",
+            ],
+        ))),
+        items_tree: (
+            items: [
+                (
+                    item_ref: (1),
+                    level: 0,
+                    unfolded: true,
+                    selected: false,
+                ),
+                (
+                    item_ref: (2),
+                    level: 0,
+                    unfolded: true,
+                    selected: false,
+                ),
+                (
+                    item_ref: (3),
+                    level: 0,
+                    unfolded: true,
+                    selected: false,
+                ),
+                (
+                    item_ref: (4),
+                    level: 0,
+                    unfolded: true,
+                    selected: false,
+                ),
+                (
+                    item_ref: (5),
+                    level: 0,
+                    unfolded: true,
+                    selected: false,
+                ),
+                (
+                    item_ref: (6),
+                    level: 0,
+                    unfolded: true,
+                    selected: false,
+                ),
+                (
+                    item_ref: (7),
+                    level: 0,
+                    unfolded: true,
+                    selected: false,
+                ),
+                (
+                    item_ref: (8),
+                    level: 0,
+                    unfolded: true,
+                    selected: false,
+                ),
+                (
+                    item_ref: (9),
+                    level: 0,
+                    unfolded: true,
+                    selected: false,
+                ),
+                (
+                    item_ref: (10),
+                    level: 0,
+                    unfolded: true,
+                    selected: false,
+                ),
+            ],
+        ),
+        displayed_items: {
+            (6): Variable((
+                variable_ref: (
+                    path: (
+                        strs: [
+                            "test",
+                        ],
+                    ),
+                    name: "i_reset",
+                ),
+                color: None,
+                background_color: None,
+                display_name: "i_reset",
+                display_name_type: Unique,
+                manual_name: None,
+                format: None,
+                field_formats: [],
+            )),
+            (3): Variable((
+                variable_ref: (
+                    path: (
+                        strs: [
+                            "test",
+                        ],
+                    ),
+                    name: "i_csr_ena",
+                ),
+                color: None,
+                background_color: None,
+                display_name: "i_csr_ena",
+                display_name_type: Unique,
+                manual_name: None,
+                format: None,
+                field_formats: [],
+            )),
+            (5): Variable((
+                variable_ref: (
+                    path: (
+                        strs: [
+                            "test",
+                        ],
+                    ),
+                    name: "i_rd",
+                ),
+                color: None,
+                background_color: None,
+                display_name: "i_rd [4:0]",
+                display_name_type: Unique,
+                manual_name: None,
+                format: None,
+                field_formats: [],
+            )),
+            (9): Variable((
+                variable_ref: (
+                    path: (
+                        strs: [
+                            "test",
+                        ],
+                    ),
+                    name: "o_data",
+                ),
+                color: None,
+                background_color: None,
+                display_name: "o_data [31:0]",
+                display_name_type: Unique,
+                manual_name: None,
+                format: None,
+                field_formats: [],
+            )),
+            (10): Variable((
+                variable_ref: (
+                    path: (
+                        strs: [
+                            "test",
+                            "csr",
+                        ],
+                    ),
+                    name: "reg_data",
+                ),
+                color: None,
+                background_color: None,
+                display_name: "reg_data [31:0]",
+                display_name_type: Unique,
+                manual_name: None,
+                format: None,
+                field_formats: [],
+            )),
+            (1): Variable((
+                variable_ref: (
+                    path: (
+                        strs: [
+                            "test",
+                        ],
+                    ),
+                    name: "i_clk",
+                ),
+                color: None,
+                background_color: None,
+                display_name: "i_clk",
+                display_name_type: Unique,
+                manual_name: None,
+                format: None,
+                field_formats: [],
+            )),
+            (8): Variable((
+                variable_ref: (
+                    path: (
+                        strs: [
+                            "test",
+                        ],
+                    ),
+                    name: "i_rs1_data",
+                ),
+                color: None,
+                background_color: None,
+                display_name: "i_rs1_data [31:0]",
+                display_name_type: Unique,
+                manual_name: None,
+                format: None,
+                field_formats: [],
+            )),
+            (4): Variable((
+                variable_ref: (
+                    path: (
+                        strs: [
+                            "test",
+                        ],
+                    ),
+                    name: "i_csr_op",
+                ),
+                color: None,
+                background_color: None,
+                display_name: "i_csr_op [2:0]",
+                display_name_type: Unique,
+                manual_name: None,
+                format: Some("Hexadecimal"),
+                field_formats: [],
+            )),
+            (2): Variable((
+                variable_ref: (
+                    path: (
+                        strs: [
+                            "test",
+                        ],
+                    ),
+                    name: "i_csr_addr",
+                ),
+                color: None,
+                background_color: None,
+                display_name: "i_csr_addr [11:0]",
+                display_name_type: Unique,
+                manual_name: None,
+                format: Some("Hexadecimal"),
+                field_formats: [],
+            )),
+            (7): Variable((
+                variable_ref: (
+                    path: (
+                        strs: [
+                            "test",
+                        ],
+                    ),
+                    name: "i_rs1",
+                ),
+                color: None,
+                background_color: None,
+                display_name: "i_rs1 [4:0]",
+                display_name_type: Unique,
+                manual_name: None,
+                format: None,
+                field_formats: [],
+            )),
+        },
+        display_item_ref_counter: 25,
+        viewports: [
+            (
+                curr_left: (0.804617020245208),
+                curr_right: (1.048845744938698),
+                target_left: (0.964444371433871),
+                target_right: (0.9474692047568997),
+                move_start_left: (0.964444371433871),
+                move_start_right: (0.9474692047568997),
+                move_duration: None,
+                move_strategy: Instant,
+            ),
+        ],
+        cursor: Some((1, [
+            447,
+        ])),
+        markers: {},
+        focused_item: None,
+        focused_transaction: (None, None),
+        default_variable_name_type: Unique,
+        scroll_offset: 0.0,
+        display_variable_indices: true,
+        graphics: {},
+    )),
+    drag_started: true,
+    drag_source_idx: None,
+    drag_target_idx: None,
+    previous_waves: None,
+    count: None,
+    blacklisted_translators: [],
+    show_about: false,
+    show_keys: false,
+    show_gestures: false,
+    show_quick_start: false,
+    show_license: false,
+    show_performance: false,
+    show_logs: false,
+    show_cursor_window: false,
+    wanted_timeunit: PicoSeconds,
+    time_string_format: None,
+    show_url_entry: false,
+    variable_name_filter_focused: false,
+    variable_name_filter_type: Fuzzy,
+    variable_name_filter_case_insensitive: true,
+    rename_target: None,
+    sidepanel_width: Some(194.5625),
+    ui_zoom_factor: None,
+)
