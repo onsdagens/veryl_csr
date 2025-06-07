@@ -3,10 +3,8 @@
 import CsrPkg::*;
 
 module CsrFields #(
-    param Addr      : logic<12> = 0   , // 12 bit address for the CSR
-    param ResetValue: logic<32> = 0   , // 32 bit default value
-    param Read      : logic     = true,
-    param Write     : logic     = true,
+    param Addr      : logic<12> = 0, // 12 bit address for the CSR
+    param ResetValue: logic<32> = 0, // 32 bit default value
 ) (
     i_clk  : input clock, // dedicated clock
     i_reset: input reset, // dedicated reset
@@ -45,7 +43,7 @@ module CsrFields #(
     // read access to whole register
     inst csr: Csr #(
         Addr       ,
-        ImmWidth: 0, // 0 bit field, no field access
+        ImmWidth: 0, // 0 bit field, no immediate field access
     ) (
         i_csr_ena               ,
         i_csr_addr              ,
@@ -62,9 +60,9 @@ module CsrFields #(
 
     // default, 5 bit field at offset 0
     inst csr0: Csr #(
-        Addr  : (Addr as u32 + 1) as CsrAddr,
-        Offset: 0                           , // not needed
-        Width : 5                           ,
+        Addr       : (Addr as u32 + 1) as CsrAddr,
+        FieldOffset: 0                           , // not needed
+        FieldWidth : 5                           ,
     ) (
         i_csr_ena                ,
         i_csr_addr               ,
@@ -81,11 +79,11 @@ module CsrFields #(
 
     // 4 bit field at offset 8
     inst csr1: Csr #(
-        Addr      : (Addr as u32 + 2) as CsrAddr,
-        Offset    : 8                           ,
-        Width     : 4                           , // 4 bit field
-        ReadShift : 0                           ,
-        WriteShift: 0                           ,
+        Addr       : (Addr as u32 + 2) as CsrAddr,
+        FieldOffset: 8                           ,
+        FieldWidth : 4                           , // 4 bit field
+        ReadShift  : 0                           ,
+        WriteShift : 0                           ,
     ) (
         i_csr_ena                ,
         i_csr_addr               ,
@@ -102,11 +100,11 @@ module CsrFields #(
 
     // 2 bit field at offset 12
     inst csr2: Csr #(
-        Addr      : (Addr as u32 + 3) as CsrAddr,
-        Offset    : 12                          ,
-        Width     : 2                           , // two bit field
-        ReadShift : 1                           ,
-        WriteShift: 1                           ,
+        Addr       : (Addr as u32 + 3) as CsrAddr,
+        FieldOffset: 12                          ,
+        FieldWidth : 2                           , // two bit field
+        ReadShift  : 1                           ,
+        WriteShift : 1                           ,
     ) (
         i_csr_ena                ,
         i_csr_addr               ,
@@ -122,20 +120,22 @@ module CsrFields #(
     );
 
     always_ff {
-        if Write {
-            if i_reset {
-                reg_data = ResetValue;
-            } else if reg_w_ena {
-                reg_data = reg_w_data;
-            } else if reg_w_ena0 {
-                reg_data = reg_w_data0;
-            } else if reg_w_ena1 {
-                reg_data = reg_w_data1;
-            } else if reg_w_ena2 {
-                reg_data = reg_w_data2;
-            }
+        if i_reset {
+            reg_data = ResetValue;
+        } else if reg_w_ena { // CSR 100
+            reg_data = reg_w_data & 'hffff_3f1f;
+        } else if reg_w_ena0 { // CSR 101
+            reg_data = reg_w_data0;
+        } else if reg_w_ena1 { // CSR 102
+            reg_data = reg_w_data1 | 'h8000_0000;
+        } else if reg_w_ena2 & ~reg_r_ena2 { // CSR 103, write not read
+            reg_data = reg_w_data2;
+        } else if reg_w_ena2 & reg_r_ena2 { // CSR 103, write and read
+            reg_data = reg_w_data2 & 32'h7fff_ffff;
+        } else if reg_r_ena2 { // CSR 103, read only
+            reg_data = reg_data & 32'h7fff_ffff;
         }
     }
 
-    assign o_data = if Read ? reg_r_data | reg_r_data0 | reg_r_data1 | reg_r_data2 : 0;
+    assign o_data = (reg_r_data & 'hffff_3f1f) | reg_r_data0 | reg_r_data1 | reg_r_data2;
 }

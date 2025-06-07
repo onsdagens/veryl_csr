@@ -1,5 +1,6 @@
 {
     "cSpell.ignoreWords": [
+        "ASIC",
         "CSRRC",
         "CSRRCI",
         "CSRRS",
@@ -9,7 +10,12 @@
         "EBREAK",
         "ECALL",
         "MMIO",
+        "UART",
+        "endmodule",
+        "fffd",
+        "fffe",
         "hdead",
+        "hffff",
         "veryl"
     ]
 }

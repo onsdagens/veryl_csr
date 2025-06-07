@@ -3,12 +3,16 @@
 import CsrPkg::*;
 
 module Csr #(
-    param Addr      : CsrAddr = 0    , // 12 bit address for the CSR (view)
-    param Offset    : u32     = 0    , // offset for field
-    param Width     : u32     = 32   , // write field width
-    param ImmWidth  : u32     = Width,
-    param WriteShift: logic   = 0    , // when 1, i_rs1_data is shifted to field offset
-    param ReadShift : logic   = 1    , // when 1, read field shifted to offset 0
+    param Addr       : CsrAddr = 0          , // 12 bit address for the CSR (view)
+    param FieldOffset: u32     = 0          , // offset for field
+    param FieldWidth : u32     = 32         , // field width
+    param ImmOffset  : u32     = FieldOffset, // immediate access
+    param ImmWidth   : u32     = FieldWidth ,
+    param RegOffset  : u32     = FieldOffset, // register access
+    param RegWidth   : u32     = FieldWidth ,
+
+    param WriteShift: logic = 0, // when 1, i_rs1_data is left shifted by FieldOffset
+    param ReadShift : logic = 1, // when 1, o_reg_r_data is right shifted by FieldOffset
 ) (
     i_csr_ena : input logic      ,
     i_csr_addr: input CsrAddr    ,
@@ -29,14 +33,14 @@ module Csr #(
     var reg_mask    : logic<32>;
 
     always_comb {
-        rs1_ext      = (i_rs1 as u32 & ({1'0, 1'1 repeat ImmWidth} as u32)) << Offset;
-        rs1_data_ext = (i_rs1_data << (if WriteShift ? Offset : 0)) & (({1'1 repeat Width} as u32) << Offset);
-        imm_mask     = ~({1'0, 1'1 repeat ImmWidth} as u32 << Offset);
-        reg_mask     = ~({1'1 repeat Width} as u32 << Offset);
+        rs1_ext      = (i_rs1 as u32 & ({1'0, 1'1 repeat ImmWidth} as u32)) << ImmOffset;
+        rs1_data_ext = (i_rs1_data << (if WriteShift ? RegOffset : 0)) & (({1'1 repeat RegWidth} as u32) << RegOffset);
+        imm_mask     = ~({1'0, 1'1 repeat ImmWidth} as u32 << ImmOffset);
+        reg_mask     = ~({1'1 repeat RegWidth} as u32 << RegOffset);
 
         if (i_csr_addr == Addr && i_csr_ena) {
             o_reg_r_ena  = i_rd != 0; // read only in case the destination register is not x0
-            o_reg_r_data = if o_reg_r_ena ? (i_reg_data & ({1'1 repeat Width} as u32 << Offset)) >> (if ReadShift ? Offset : 0) : 0;
+            o_reg_r_data = if o_reg_r_ena ? (i_reg_data & ({1'1 repeat RegWidth} as u32 << RegOffset)) >> (if ReadShift ? RegOffset : 0) : 0;
             case i_csr_op {
                 CsrOp::ECALL: {
                     o_reg_w_ena  = 0;
