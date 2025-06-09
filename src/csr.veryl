@@ -37,7 +37,7 @@ module Csr #(
         rs1_data_ext = (i_rs1_data << (if WriteShift ? RegOffset : 0)) & (({1'1 repeat RegWidth} as u32) << RegOffset);
         imm_mask     = ~({1'0, 1'1 repeat ImmWidth} as u32 << ImmOffset);
         reg_mask     = ~({1'1 repeat RegWidth} as u32 << RegOffset);
-        o_reg_r_ena  = 0;
+        o_reg_r_ena  = 0; // this is a bug in Veryl, once it is fixed remove this and uncomment line 81
         if (i_csr_addr == Addr && i_csr_ena) {
             o_reg_r_ena  = i_rd != 0; // read only in case the destination register is not x0
             o_reg_r_data = if o_reg_r_ena ? (i_reg_data & ({1'1 repeat RegWidth} as u32 << RegOffset)) >> (if ReadShift ? RegOffset : 0) : 0;
@@ -78,7 +78,7 @@ module Csr #(
         } else {
             o_reg_w_ena  = 0;
             o_reg_w_data = 0;
-            //o_reg_r_ena  = 0;
+            //o_reg_r_ena  = 0; // related to bug on line 40.
             o_reg_r_data = 0;
         }
     }
