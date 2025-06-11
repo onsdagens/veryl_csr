@@ -14,7 +14,7 @@ module CsrFields #(
     i_rs1_data: input logic  <32>,
     i_rs1     : input Reg        ,
     i_rd      : input Reg        ,
-    i_csr_op  : input CsrOp      ,
+    i_csr_op  : input logic  <3> ,
 
     o_data: output logic<32>,
 ) {

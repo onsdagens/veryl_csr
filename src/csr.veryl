@@ -19,7 +19,7 @@ module Csr #(
     i_rs1_data: input logic  <32>,
     i_rs1     : input Reg        ,
     i_rd      : input Reg        ,
-    i_csr_op  : input CsrOp      ,
+    i_csr_op  : input logic  <3> ,
 
     i_reg_data  : input  logic<32>,
     o_reg_w_ena : output logic    ,
@@ -42,31 +42,31 @@ module Csr #(
             o_reg_r_ena  = i_rd != 0; // read only in case the destination register is not x0
             o_reg_r_data = if o_reg_r_ena ? (i_reg_data & ({1'1 repeat RegWidth} as u32 << RegOffset)) >> (if ReadShift ? RegOffset : 0) : 0;
             case i_csr_op {
-                CsrOp::ECALL: {
+                ECALL: {
                     o_reg_w_ena  = 0;
                     o_reg_w_data = 0;
                 }
-                CsrOp::CSRRW: {
+                CSRRW: {
                     o_reg_w_ena  = 1;
                     o_reg_w_data = (i_reg_data & reg_mask) | rs1_data_ext;
                 }
-                CsrOp::CSRRS: {
+                CSRRS: {
                     o_reg_w_ena  = 1;
                     o_reg_w_data = i_reg_data | rs1_data_ext;
                 }
-                CsrOp::CSRRC: {
+                CSRRC: {
                     o_reg_w_ena  = 1;
                     o_reg_w_data = i_reg_data & ~rs1_data_ext;
                 }
-                CsrOp::CSRRWI: {
+                CSRRWI: {
                     o_reg_w_ena  = i_rs1 != 0;
                     o_reg_w_data = (i_reg_data & imm_mask) | rs1_ext;
                 }
-                CsrOp::CSRRSI: {
+                CSRRSI: {
                     o_reg_w_ena  = i_rs1 != 0;
                     o_reg_w_data = i_reg_data | rs1_ext;
                 }
-                CsrOp::CSRRCI: {
+                CSRRCI: {
                     o_reg_w_ena  = i_rs1 != 0;
                     o_reg_w_data = i_reg_data & ~rs1_ext;
                 }

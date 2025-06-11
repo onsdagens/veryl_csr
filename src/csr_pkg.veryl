@@ -2,7 +2,7 @@
 
 package CsrPkg {
 
-    enum CsrOp: logic<3> {
+    /*enum CsrOp: logic<3> {
         ECALL = 3'b000, // EBREAK = 3'b000,
         CSRRW = 3'b001,
         CSRRS = 3'b010,
@@ -10,7 +10,15 @@ package CsrPkg {
         CSRRWI = 3'b101,
         CSRRSI = 3'b110,
         CSRRCI = 3'b111,
-    }
+    }*/
+
+    const ECALL : logic<3> = 3'b000;
+    const CSRRW : logic<3> = 3'b001;
+    const CSRRS : logic<3> = 3'b010;
+    const CSRRC : logic<3> = 3'b011;
+    const CSRRWI: logic<3> = 3'b101;
+    const CSRRSI: logic<3> = 3'b110;
+    const CSRRCI: logic<3> = 3'b111;
 
     type CsrAddr = logic<12>;
     type Reg     = logic<5> ;
